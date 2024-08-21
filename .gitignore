@@ -1,0 +1,4 @@
+.env    
+*.gaphor
+log
+.vscode
