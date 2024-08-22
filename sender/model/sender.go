@@ -38,6 +38,11 @@ func (e *EmailData) parseRegisterMailTemplate(templateFileName string) (string, 
 	return buf.String(), nil
 }
 
+func (s *Sender) FormatContent(body string) string {
+
+	return ""
+}
+
 func (s *Sender) SendMail(to []string, subject, body string) error {
 	from := s.mailAccount
 	password := s.password
