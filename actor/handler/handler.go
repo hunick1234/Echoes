@@ -5,7 +5,7 @@ import (
 
 	"github.com/hunick1234/Echoes/actor/repository"
 	"github.com/hunick1234/Echoes/actor/service"
-	"github.com/hunick1234/Echoes/server"
+	httpb "github.com/hunick1234/Echoes/server/httpB"
 )
 
 type UserHandler struct {
@@ -22,9 +22,8 @@ func NewUserHandler(srv service.ActorService, res http.ResponseWriter, req *http
 	}
 }
 
-func StartUserHAndle(ser *server.Server) {
-	ser.Get("/register", handler(Register))
-
+func StartUserHAndle(router *httpb.WrappedMux) {
+	router.Get("/register", handler(Register))
 }
 
 func handler(api func(*UserHandler)) http.HandlerFunc {
@@ -33,7 +32,7 @@ func handler(api func(*UserHandler)) http.HandlerFunc {
 		srv := service.NewActorService(&repo)
 		u := NewUserHandler(srv, res, req)
 		api(&u)
-		
+
 	}
 }
 

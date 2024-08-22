@@ -5,7 +5,7 @@ import (
 
 	"github.com/hunick1234/Echoes/sender/repository"
 	"github.com/hunick1234/Echoes/sender/service"
-	"github.com/hunick1234/Echoes/server"
+	httpb "github.com/hunick1234/Echoes/server/httpB"
 )
 
 type SenderHandler struct {
@@ -22,9 +22,9 @@ func NewSenderHandler(srv service.SenderService, res http.ResponseWriter, req *h
 	}
 }
 
-func StartSenderHandle(ser *server.Server) {
-	ser.Get("/SendRegisterMail", handler(SendRegisterMail))
-	ser.Get("/SendMail",handler(SendMail))
+func StartSenderHandle(router *httpb.WrappedMux) {
+	router.Get("/SendRegisterMail", handler(SendRegisterMail))
+	router.Get("/SendMail", handler(SendMail))
 }
 
 func handler(api func(*SenderHandler)) http.HandlerFunc {
