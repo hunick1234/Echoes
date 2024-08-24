@@ -1,9 +1,9 @@
 package handler
 
-func (u *UserHandler) login() {
+func (u *ActorHandler) login() {
 
 }
 
-func (u *UserHandler) Register() {
+func (u *ActorHandler) Register() {
 
 }

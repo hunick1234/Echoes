@@ -8,14 +8,14 @@ import (
 	httpb "github.com/hunick1234/Echoes/server/httpB"
 )
 
-type UserHandler struct {
+type ActorHandler struct {
 	Service service.ActorService
 	res     http.ResponseWriter
 	req     *http.Request
 }
 
-func NewUserHandler(srv service.ActorService, res http.ResponseWriter, req *http.Request) UserHandler {
-	return UserHandler{
+func NewUserHandler(srv service.ActorService, res http.ResponseWriter, req *http.Request) ActorHandler {
+	return ActorHandler{
 		Service: srv,
 		res:     res,
 		req:     req,
@@ -26,7 +26,7 @@ func StartUserHAndle(router *httpb.WrappedMux) {
 	router.Get("/register", handler(Register))
 }
 
-func handler(api func(*UserHandler)) http.HandlerFunc {
+func handler(api func(*ActorHandler)) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		repo := repository.NewActorRepo()
 		srv := service.NewActorService(&repo)
@@ -36,7 +36,7 @@ func handler(api func(*UserHandler)) http.HandlerFunc {
 	}
 }
 
-func Register(u *UserHandler) {
+func Register(u *ActorHandler) {
 	u.Register()
 	http.Get("http://127.0.0.1:5050/SendRegisterMail")
 }
