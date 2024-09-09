@@ -9,8 +9,8 @@ import (
 )
 
 var (
-	from     = config.DeafultFrom
-	password = config.Password
+	from     = config.Sender_Mail
+	password = config.Sender_Password
 )
 
 //task

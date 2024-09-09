@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	from = config.DeafultFrom
+	from = config.Sender_Mail
 )
 
 type WorkType int
