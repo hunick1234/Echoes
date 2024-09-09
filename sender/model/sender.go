@@ -3,12 +3,25 @@ package model
 import (
 	"bytes"
 	"html/template"
-	"net/smtp"
+	"os"
+
+	"github.com/hunick1234/Echoes/config"
+)
+
+var (
+	from = config.DeafultFrom
+)
+
+type WorkType int
+
+const (
+	Register WorkType = iota
+	Resend
 )
 
 type Sender struct {
-	mailAccount string
-	password    string
+	MailAccount string
+	Passworld   string
 	EmailFormate
 	EmailData
 }
@@ -25,8 +38,8 @@ type EmailData struct {
 	Url     string
 }
 
-func (e *EmailData) parseRegisterMailTemplate(templateFileName string) (string, error) {
-	templateFileName = "mail_template.html"
+func (e *EmailData) ParseRegisterMailTemplate() (string, error) {
+	templateFileName := "../../template/register_mail_template.html"
 	t, err := template.ParseFiles(templateFileName)
 	if err != nil {
 		return "", err
@@ -38,32 +51,23 @@ func (e *EmailData) parseRegisterMailTemplate(templateFileName string) (string, 
 	return buf.String(), nil
 }
 
-func (s *Sender) FormatContent(body string) string {
-
-	return ""
+func DefaultSender() Sender {
+	return Sender{
+		MailAccount: os.Getenv("sender_mail"),
+		Passworld:   os.Getenv("sender_passworld"),
+		EmailFormate: EmailFormate{
+			Subject: "test",
+			To:      []string{"hunick1234@gmail.com"},
+			Body:    "",
+		},
+		EmailData: EmailData{},
+	}
 }
 
-func (s *Sender) SendMail(to []string, subject, body string) error {
-	from := s.mailAccount
-	password := s.password
-
-	// 設置SMTP服務器信息
-	smtpHost := "smtp.example.com"
-	smtpPort := "587"
-
-	// 設置電子郵件頭部和正文
+func SetFormateMail(subject, body string) string {
 	msg := "From: " + from + "\n" +
-		"To: " + to[0] + "\n" +
+		"To: no-reply@example.com\n" +
 		"Subject: " + subject + "\n" +
 		"MIME-version: 1.0;\nContent-Type: text/html; charset=\"UTF-8\";\n\n" + body
-
-	// 設置認證
-	auth := smtp.PlainAuth("", from, password, smtpHost)
-
-	// 發送郵件
-	err := smtp.SendMail(smtpHost+":"+smtpPort, auth, from, to, []byte(msg))
-	if err != nil {
-		return err
-	}
-	return nil
+	return msg
 }
