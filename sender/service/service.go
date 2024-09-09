@@ -1,47 +1,73 @@
 package service
 
 import (
-	"net/smtp"
-	"os"
+	"errors"
+	"strconv"
 
+	"github.com/hunick1234/Echoes/config"
+	"github.com/hunick1234/Echoes/sender/model"
 	"github.com/hunick1234/Echoes/sender/repository"
+	"github.com/hunick1234/Echoes/workpool"
 )
 
 type SenderService interface {
-		SendMail(to []string, subject, body string) error
+	SendMail(workType model.WorkType, to []string) error
 }
 
-func NewSenderService(repo *repository.SendRepo) SenderService {
+func DefaultSenderService() SenderService {
+	repo := repository.DefaultSenderRepo()
 	return &SenderServiceImpl{
+		wp:   workpool.NewWorkerPool(10),
+		repo: repo,
+	}
+}
+
+func NewSenderService(wp *workpool.WorkerPool, repo repository.SenderRepo) SenderService {
+	return &SenderServiceImpl{
+		wp:   wp,
 		repo: repo,
 	}
 }
 
 type SenderServiceImpl struct {
-	repo *repository.SendRepo
+	wp   *workpool.WorkerPool
+	repo repository.SenderRepo
 }
 
-func (s *SenderServiceImpl) SendMail(to []string, subject, body string) error {
-	passworld := os.Getenv("sender_passworld")
-	from := os.Getenv("sender_mail")
+func (s *SenderServiceImpl) SendMail(workType model.WorkType, to []string) error {
 
-	// 設置SMTP服務器信息
-	smtpHost := "smtp.gmail.com"
-	smtpPort := "587"
+	switch workType {
+	case model.Register:
+		body, err := s.getRegisterMailBody(to[0])
+		if err != nil {
+			return err
+		}
 
-	// 設置電子郵件頭部和正文
-	msg := "From: " + from + "\n" +
-		"To: " + to[0] + "\n" +
-		"Subject: " + subject + "\n" +
-		"MIME-version: 1.0;\nContent-Type: text/html; charset=\"UTF-8\";\n\n" + body
-
-	// 設置認證
-	auth := smtp.PlainAuth("", from, passworld, smtpHost)
-
-	// 發送郵件
-	err := smtp.SendMail(smtpHost+":"+smtpPort, auth, from, to, []byte(msg))
-	if err != nil {
-		return err
+		msg := model.SetFormateMail(config.RegisterSubject, body)
+		task := creatRegisterMailTask(to, msg)
+		s.wp.Add(task)
+	case model.Resend:
+	default:
+		return errors.New("unkonw task")
 	}
 	return nil
+}
+
+func (s *SenderServiceImpl) getRegisterMailBody(to string) (string, error) {
+	id, err := s.repo.GetUserId(to)
+	if err != nil {
+		return "", err
+	}
+	idStr := strconv.Itoa(id)
+
+	data := model.EmailData{
+		Name:    to,
+		Message: "",
+		Url:     "http://127.0.0.1/room/" + idStr,
+	}
+	body, err := data.ParseRegisterMailTemplate()
+	if err != nil {
+		return "", nil
+	}
+	return body, nil
 }
