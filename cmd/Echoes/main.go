@@ -20,14 +20,14 @@ func main() {
 			Logger: slog.New(slog.NewJSONHandler(os.Stdout, nil)),
 		},
 		Handler: middleware.Logging(
-			router.Next(
-				middleware.Cors(
+			middleware.Cors(
+				router.Next(
 					middleware.End(),
 				),
 			),
 		),
 	}
 
-	handler.StartUserHAndle(&router)
+	handler.StartUserHandle(&router)
 	server.Start()
 }

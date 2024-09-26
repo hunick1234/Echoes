@@ -5,25 +5,38 @@ import (
 	"github.com/hunick1234/Echoes/actor/repository"
 )
 
-type ActorService interface {
-	Store(*model.Actor) error
-	GetByMail(string) (model.Actor, error)
+func init() {
+	var _ ActorService = (*ActorServiceImpl)(nil)
 }
 
-func NewActorService(repo *repository.ActorRepository) ActorService {
+type ActorService interface {
+	CheckByMail(mail string) bool
+	CreatUser(*model.RegisterActor) error
+}
+
+func NewActorService(repo repository.ActorRepo) ActorService {
 	return &ActorServiceImpl{
 		repo: repo,
 	}
 }
 
 type ActorServiceImpl struct {
-	repo *repository.ActorRepository
+	repo repository.ActorRepo
 }
 
-func (a *ActorServiceImpl) Store(_ *model.Actor) error {
-	panic("not implemented") // TODO: Implement
+func (a *ActorServiceImpl) CreatUser(actor *model.RegisterActor) error {
+	err := a.repo.Creat(actor)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
-func (a *ActorServiceImpl) GetByMail(_ string) (model.Actor, error) {
-	panic("not implemented") // TODO: Implement
+func (a *ActorServiceImpl) CheckByMail(mail string) bool {
+	ok, err := a.repo.CheckByMail(mail)
+	if err != nil {
+		return false
+	}
+
+	return ok
 }

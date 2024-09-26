@@ -10,6 +10,9 @@ import (
 var (
 	Sender_Mail     string
 	Sender_Password string
+	DB_Password     string
+	DB_Name         string
+	DB_User         string
 	RegisterSubject = "this is your login URL"
 )
 
@@ -21,5 +24,7 @@ func init() {
 
 	Sender_Mail = os.Getenv("sender_mail")
 	Sender_Password = os.Getenv("sender_password")
-	RegisterSubject = "this is your login URL"
+	DB_Password = os.Getenv("db_password")
+	DB_Name = os.Getenv("db_name")
+	DB_User = os.Getenv("db_user")
 }
