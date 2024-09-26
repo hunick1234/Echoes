@@ -50,7 +50,9 @@ func Handler[T any](api func(*ServiceHandler[T]) error, h *ServiceHandler[T]) ht
 		h.SetRes(res).SetReq(req)
 		err := api(h)
 		if err != nil {
-
+			HttpRespon(res, http.StatusBadRequest, err.Error())
+			return
 		}
+		HttpRespon(res, http.StatusOK, "success")
 	}
 }
